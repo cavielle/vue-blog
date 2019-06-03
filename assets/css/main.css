@@ -1,0 +1,9 @@
+html,body,#__nuxt{
+    height: 100%;
+}
+html,body,#__layout{
+    height: 100%;
+}
+html,body,#__layout>div:nth-child(1){
+    height: 100%;
+}

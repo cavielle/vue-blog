@@ -54,7 +54,7 @@
       </el-menu>
     </el-aside>-->
 
-    <el-menu :default-active="active" class="el-menu-vertical-demo" :collapse="isCollapse">
+    <el-menu :default-active="this.$store.state.active" class="el-menu-vertical-demo" :collapse="isCollapse">
       <!-- <el-image src="https://avatar.gitee.com/uploads/84/4923684_x-ivan.png" fit="cover"></el-image>
       <span>Iavn</span>-->
       <el-menu-item class="admin" index="0" disabled>
@@ -198,7 +198,7 @@ export default {
   data() {
     return {
       isCollapse: false, //导航栏收缩
-      active: '2-2' //导航栏选中状态
+      // active: this.$store.state.active //导航栏选中状态
     }
   },
   created() {
@@ -214,19 +214,21 @@ export default {
     var path = this.$route.path.split('/')
     switch (path.map(item => item)[path.length - 1]) {
       case 'checkarticle':
-        this.active = '2-1'
+        this.$store.commit('handelActive','2-1')
         break
       case 'postarticle':
-        this.active = '2-2'
+        this.$store.commit('handelActive','2-2') 
 
       default:
         break
     }
+  },
+  computed: {
+    handle() {
+      return function() {
+        return this.$store.state.active
+      }
+    }
   }
-  //   computed:{
-  //       handleTag(){
-  //           return '1 '
-  //       }
-  //   }
 }
 </script>

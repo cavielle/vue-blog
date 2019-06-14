@@ -1,5 +1,5 @@
 <template>
-  <el-container style="height: 100%;">
+  <el-container style="height: 100%;" v-if="login">
     <!-- <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
       <el-menu :default-openeds="['2', '3']" :collapse="isCollapse">
         <el-submenu index="1">
@@ -54,7 +54,11 @@
       </el-menu>
     </el-aside>-->
 
-    <el-menu :default-active="active" class="el-menu-vertical-demo" :collapse="isCollapse">
+    <el-menu
+      :default-active="this.$store.state.active"
+      class="el-menu-vertical-demo"
+      :collapse="isCollapse"
+    >
       <!-- <el-image src="https://avatar.gitee.com/uploads/84/4923684_x-ivan.png" fit="cover"></el-image>
       <span>Iavn</span>-->
       <el-menu-item class="admin" index="0" disabled>
@@ -197,11 +201,67 @@ $SubColor: #607d8b;
 export default {
   data() {
     return {
-      isCollapse: false, //导航栏收缩
-      active: '2-2' //导航栏选中状态
+      login: false,
+      isCollapse: false //导航栏收缩
+      // active: this.$store.state.active //导航栏选中状态
     }
   },
+  head() {
+    return {
+      title: '后台',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: '123',
+          requireAuth: true
+        }
+      ]
+    }
+  },
+  beforeCreate() {
+    this.$axios({
+      methods: 'get',
+      url: '/token',
+      // header: { token: this.getToken },
+      headers: { Authorization: this.getToken }
+    })
+      //是否为合法token，如果不是就跳login页面
+      .then(response => {
+        //
+        if (response.data.state == 200) {
+          this.login = true
+        } else {
+          //   this.$router.push('/login')
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        this.errored = true
+      })
+      .finally(() => (this.loading = false))
+  },
   created() {
+    this.$axios({
+      methods: 'get',
+      url: '/token',
+      // header: { token: this.getToken },
+      headers: { Authorization: this.getToken }
+    })
+      //是否为合法token，如果不是就跳login页面
+      .then(response => {
+        //
+        if (response.data.state == 200) {
+          this.login = true
+        } else {
+            this.$router.push('/login')
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        this.errored = true
+      })
+      .finally(() => (this.loading = false))
     //默认目录
     console.log(this.$router)
     this.$route.path == '/admin'
@@ -214,19 +274,24 @@ export default {
     var path = this.$route.path.split('/')
     switch (path.map(item => item)[path.length - 1]) {
       case 'checkarticle':
-        this.active = '2-1'
+        this.$store.commit('handelActive', '2-1')
         break
       case 'postarticle':
-        this.active = '2-2'
+        this.$store.commit('handelActive', '2-2')
 
       default:
         break
     }
+  },
+  computed: {
+    handle() {
+      return function() {
+        return this.$store.state.active
+      }
+    },
+    getToken() {
+      return window.localStorage.getItem('Token')
+    }
   }
-  //   computed:{
-  //       handleTag(){
-  //           return '1 '
-  //       }
-  //   }
 }
 </script>

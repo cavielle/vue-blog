@@ -2,7 +2,6 @@
   <div class="body">
     <el-main v-loading="loading" class="main">
       <el-button @click="post">Add</el-button>
-      {{this.getToken}}
       <el-table
         ref="singleTable"
         highlight-current-row

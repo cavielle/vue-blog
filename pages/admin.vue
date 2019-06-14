@@ -203,6 +203,7 @@ export default {
     return {
       login: false,
       isCollapse: false //导航栏收缩
+
       // active: this.$store.state.active //导航栏选中状态
     }
   },

@@ -1,13 +1,12 @@
 <template>
   <div class="body">
     <el-main v-loading="loading" class="main">
-      <el-button>Add</el-button>
-
+      <el-button @click="post">Add</el-button>
       <el-table
         ref="singleTable"
         highlight-current-row
         :data="ArticleData.filter(data => !search || (data.ArticleTitle.toLowerCase().includes(search.toLowerCase()) || data.ArticleContent.toLowerCase().includes(search.toLowerCase())))"
-        height="calc(100% - 60px)"
+        class='table'
         @current-change="handleCurrentChange"
       >
         <el-table-column type="index" width="50"></el-table-column>
@@ -41,12 +40,8 @@
             <el-input v-model="search" size="mini" placeholder="输入关键字搜索"/>
           </template>
           <template slot-scope="scope">
-            <el-button size="mini" @click="MessageBox()">Edit</el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
-            >Delete</el-button>
+            <el-button size="mini" @click="handleDelete(scope.$index, scope.row)">Edit</el-button>
+            <el-button size="mini" type="danger" @click="MessageBox()">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -65,17 +60,17 @@
   margin-left: 0 !important;
 }
 .body {
-  background: red;
   height: 100%;
 }
 .main {
   padding: 20px 20px 0;
   height: 100%;
+  .table {
+    height: calc(100% - 60px);
+  }
 }
 </style>
 <script>
-// var showdown = require('showdown');
-// var converter = new showdown.Converter();
 export default {
   data() {
     return {
@@ -92,8 +87,12 @@ export default {
     // }, 1500)
   },
   mounted() {
-    this.$axios
-      .get('/getArticleInfo')
+    this.$axios({
+      methods: 'get',
+      url: '/getArticleInfo',
+      // header: { token: this.getToken },
+      headers: { Authorization: this.getToken }
+    })
       .then(response => {
         this.ArticleData = response.data.data
         console.log(response.data.data)
@@ -113,15 +112,17 @@ export default {
     },
     handleDelete(index, row) {
       console.log(index, row)
+      this.$store.commit('handelActive', '2-2')
+      this.$router.push(`/admin/postarticle/${row.ArticleID}`)
       // console.log(converter.makeHtml(row.ArticleContent))
     },
     MessageBox() {
       const h = this.$createElement
       this.$msgbox({
-        title: '消息',
+        title: '删除',
         message: h('p', null, [
           h('span', null, '内容可以是 '),
-          h('i', { style: 'color: teal' }, 'VNode')
+          h('i', { style: 'color: teal' }, '暂无此功能')
         ]),
         showCancelButton: true,
         confirmButtonText: '确定',
@@ -157,7 +158,8 @@ export default {
         params: {
           id: `${row.ArticleID}`,
           show: `${row.ArticleShow}`
-        }
+        },
+        headers: { Authorization: this.getToken }
       })
         .then(response => {
           console.log(response)
@@ -168,6 +170,10 @@ export default {
         })
         .finally(() => (this.loading = false))
       console.log(row.ArticleID, row.ArticleShow)
+    },
+    post() {
+      this.$store.commit('handelActive', '2-2')
+      this.$router.push(`/admin/postarticle/post`)
     }
   },
   computed: {
@@ -190,7 +196,10 @@ export default {
       return function(val) {
         return '0' ? true : false
       }
+    },
+    getToken() {
+      return window.localStorage.getItem('Token')
     }
-  },
+  }
 }
 </script>

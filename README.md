@@ -6,8 +6,8 @@
 - [x] 发送文章
 - [x] 查看文章
 - [ ] 删除文章
-- [ ] 编辑文章
-- [ ] admin后台密码
+- [x] 编辑文章
+- [x] admin后台密码
 ## Build Setup
 ``` bash
 # install dependencies

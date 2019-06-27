@@ -2,8 +2,19 @@
   <div class="post" v-loading="loading">
     <el-form :label-position="labelPosition" label-width="90px" :model="formLabelAlign">
       <el-button-group class="el-button-group">
-        <el-button type="primary" icon="el-icon-s-promotion" @click="postArticle">post</el-button>
-        <el-button type="primary" icon="el-icon-s-operation">查看</el-button>
+        <el-button
+          v-if="update"
+          type="primary"
+          icon="el-icon-s-promotion"
+          @click="handleArticle('post')"
+        >post</el-button>
+        <el-button
+          v-else
+          type="primary"
+          icon="el-icon-s-promotion"
+          @click="handleArticle('put')"
+        >update</el-button>
+        <el-button type="primary" icon="el-icon-s-operation"></el-button>
         <!-- <el-button type="primary" icon="el-icon-delete"></el-button> -->
       </el-button-group>
       <el-form-item label="标题封面：">
@@ -146,12 +157,6 @@ textarea {
 </style>
 
 <script>
-import Vue from 'vue'
-import Vant from 'vant'
-import 'vant/lib/index.css'
-
-Vue.use(Vant)
-
 export default {
   data() {
     return {
@@ -159,6 +164,7 @@ export default {
       errored: false,
       labelPosition: 'left',
       dialogVisible: false,
+      id: this.$route.params.id,
       formLabelAlign: {
         imageurl: '',
         // imageurl: 'https://images7.alphacoders.com/805/thumb-1920-805786.png',
@@ -173,35 +179,41 @@ export default {
       handbook: '### start\n'
     }
   },
+  created() {
+    console.log(this.id)
+  },
+  mounted() {
+    if (!this.update) {
+      this.$axios({
+        method: 'get',
+        url: '/getArticle',
+        params: {
+          id: this.id
+        }
+      })
+        .then(response => {
+          let data = response.data.data[0]
+          data ? '' : this.$router.push('/404') //如果没有取到数据就证明没有这个页面
+          this.handbook = data.ArticleContent
+          this.postimg = data.ArticleImgUrl
+          this.formLabelAlign.show = data.ArticleShow
+          this.formLabelAlign.title = data.ArticleTitle
+          this.formLabelAlign.summary = data.ArticleSummary
+          this.formLabelAlign.tag = data.ArticleTag.split(',')
+          console.log(data)
+        })
+        .catch(error => {
+          console.log(error)
+
+          this.errored = true
+        })
+    }
+  },
   methods: {
-    // async changepic(file) {
-    //   // var reads = new FileReader()
-    //   // var f = document.getElementById('file').files[0]
-    //   // reads.readAsDataURL(f)
-    //   // reads.onload = function(e) {
-    //   //   document.getElementById('show').src = this.result
-    //   // }
-    //   // console.log(f)
-    //   let files = document.querySelectorAll('#file')[0].files[0]
-    //   console.log(file.file, files)
-    //   let formData = new FormData()
-    //   formData.append('smfile', file.file)
-    //   let { data } = await this.$axios({
-    //     method: 'post',
-    //     url: 'http://localhost:8888/upload',
-    //     data: formData,
-    //     headers: {
-    //       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-    //     }
-    //   })
-
-    //   console.log(data)
-    // },
-
     handleAvatarSuccess(res, file) {
       this.postimg = URL.createObjectURL(file.raw)
       this.formLabelAlign.imageurl = res.data.url
-      // console.log(res, file, URL)
+      console.log(res, file)
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg'
@@ -238,20 +250,37 @@ export default {
       this.inputVisible = false
       this.inputValue = ''
     },
-    postArticle() {
+    uuid() {
+      // 生成uuid
+      var s = []
+      var hexDigits = '0123456789abcdef'
+      for (var i = 0; i < 36; i++) {
+        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
+      }
+      s[14] = '4' // bits 12-15 of the time_hi_and_version field to 0010
+      s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1) // bits 6-7 of the clock_seq_hi_and_reserved to 01
+      s[8] = s[13] = s[18] = s[23] = '-'
+
+      var uuid = s.join('')
+      return uuid
+    },
+    handleArticle(status) {
       //发送文章
       this.loading = true
+      let id = this.statusID(status)
       this.$axios({
-        method: 'post',
-        url: '/postArticle',
+        method: status,
+        url: this.statusUrl(status),
         params: {
+          id: id,
           imgurl: `${this.formLabelAlign.imageurl}`,
           show: `${this.formLabelAlign.show}`,
           title: `${this.formLabelAlign.title}`,
           summary: `${this.formLabelAlign.summary}`,
           content: `${this.handbook}`,
           tag: `${this.formLabelAlign.tag.join()}`
-        }
+        },
+        headers: { Authorization: this.getToken }
       })
         // .post(
         //   `/postArticle?imgurl='${
@@ -265,7 +294,7 @@ export default {
         // )
         .then(response => {
           //   this.ArticleData = response.data.data
-          console.log(response)
+          console.log(response.data)
         })
         .catch(error => {
           console.log(error)
@@ -276,11 +305,39 @@ export default {
           this.errored
             ? this.msg('发送失败', 'error')
             : this.msg('发送成功', 'success')
+          this.update ? this.$router.push('/admin/checkarticle') : ''
         })
     },
     msg(msg, type) {
       this.$message({ message: msg, type: type })
     }
+  },
+  computed: {
+    update() {
+      console.log(this.id == 'post')
+      return this.id == 'post'
+    },
+    statusUrl() {
+      return function(status) {
+        if (status == 'post') {
+          return '/postArticle'
+        } else if (status == 'put') {
+          return 'updateArticle'
+        }
+      }
+    },
+    statusID() {
+      return function(status) {
+        if (status === 'post') {
+          return this.uuid()
+        } else if (status == 'put') {
+          return this.id
+        }
+      }
+    }
+  },
+  getToken() {
+    return window.localStorage.getItem('Token')
   }
 }
 </script>

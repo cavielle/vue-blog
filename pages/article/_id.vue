@@ -2,7 +2,7 @@
   <div>
     <header
       class="entry-header"
-      style="background-image:url('https://images7.alphacoders.com/101/1010054.jpg')"
+      :style="{backgroundImage:'url('+this.Article.ArticleImgUrl+')'}"
     >
       <div class="inner">
         <div class="title">
@@ -17,7 +17,7 @@
     </header>
     <div class="entry-content">
       <div class="entry-post title">
-        <img src="~/static/image/post-cover.jpg" alt width="700" height="220">
+        <img :src="this.Article.ArticleImgUrl" alt width="700" height="220">
         <!-- <img src="//img.c7sky.com/2016/05/28/wordpress_theme_c7v5_banner.jpg" itemprop="image" width="700" height="220" alt="" loading="lazy"> -->
         <p>{{ this.Article.ArticleSummary }}</p>
       </div>
@@ -39,7 +39,8 @@ export default {
   data() {
     return {
       Article: [],
-      id: this.$route.params.id
+      id: this.$route.params.id,
+
     }
   },
   head() {
@@ -60,6 +61,7 @@ export default {
     })
       .then(response => {
         this.Article = response.data.data[0]
+        this.Article?'':this.$router.push('/admin/checkarticle/404')//如果没有取到数据就证明没有这个页面
         console.log(response)
       })
       .catch(error => {
@@ -104,7 +106,7 @@ export default {
 }
 .entry-header {
   color: #fff;
-  background: 50% #00796b;
+  background: 50% #607d8b;
   background-size: cover;
   overflow: hidden;
   margin-bottom: -110px;

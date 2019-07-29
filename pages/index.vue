@@ -74,7 +74,9 @@ $SubColor2: #b2dfdb;
   }
 }
 .Header {
-  background-image: url(~static/image/1014821.png);
+  // background-image: url(~static/image/1014821.png);
+  background: #00BCD4;
+  background-image: url('https://i.loli.net/2019/07/29/5d3eadb65997973032.png');
   height: auto;
   background-size: cover;
   .site-branding {

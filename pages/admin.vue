@@ -132,11 +132,11 @@
           class="el-images"
         ></el-image>
         <!-- <img src="~static/image/x.jpg" style="width: 50px; height: 50px;border-radius: 57px; position: relative;top: 5px;right:.5rem;"> -->
-        <span>Iavn</span>
+        <span>Ivan</span>
       </el-header>
       <!-- 路由切换 -->
       <!-- <router-view/> -->
-      <nuxt-child/>
+      <nuxt-child />
     </el-container>
   </el-container>
 </template>
@@ -219,28 +219,28 @@ export default {
       ]
     }
   },
-  beforeCreate() {
-    this.$axios({
-      methods: 'get',
-      url: '/token',
-      // header: { token: this.getToken },
-      headers: { Authorization: this.getToken }
-    })
-      //是否为合法token，如果不是就跳login页面
-      .then(response => {
-        //
-        if (response.data.state == 200) {
-          this.login = true
-        } else {
-          //   this.$router.push('/login')
-        }
-      })
-      .catch(error => {
-        console.log(error)
-        this.errored = true
-      })
-      .finally(() => (this.loading = false))
-  },
+  // beforeCreate() {
+  //   this.$axios({
+  //     methods: 'get',
+  //     url: '/token',
+  //     // header: { token: this.getToken },
+  //     headers: { Authorization: this.getToken }
+  //   })
+  //     //是否为合法token，如果不是就跳login页面
+  //     .then(response => {
+  //       //
+  //       if (response.data.state == 200) {
+  //         this.login = true
+  //       } else {
+  //         //   this.$router.push('/login')
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.log(error)
+  //       this.errored = true
+  //     })
+  //     .finally(() => (this.loading = false))
+  // },
   created() {
     this.$axios({
       methods: 'get',
@@ -254,7 +254,7 @@ export default {
         if (response.data.state == 200) {
           this.login = true
         } else {
-            this.$router.push('/login')
+          this.$router.push('/login')
         }
       })
       .catch(error => {

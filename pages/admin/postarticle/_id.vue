@@ -26,7 +26,7 @@
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
         >
-          <img v-if="postimg" :src="postimg" class="avatar">
+          <img v-if="postimg" :src="postimg" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
@@ -83,7 +83,7 @@
 
     <div class="mavonEditor">
       <no-ssr>
-        <mavon-editor v-model="handbook"/>
+        <mavon-editor v-model="handbook" />
       </no-ssr>
     </div>
   </div>
@@ -334,10 +334,10 @@ export default {
           return this.id
         }
       }
+    },
+    getToken() {
+      return window.localStorage.getItem('Token')
     }
-  },
-  getToken() {
-    return window.localStorage.getItem('Token')
   }
 }
 </script>

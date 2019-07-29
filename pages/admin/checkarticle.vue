@@ -89,7 +89,7 @@ export default {
   mounted() {
     this.$axios({
       methods: 'get',
-      url: '/getArticleInfo',
+      url: '/getArticleAdmin',
       // header: { token: this.getToken },
       headers: { Authorization: this.getToken }
     })
